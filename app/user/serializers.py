@@ -22,13 +22,25 @@ class UserSerializer(serializers.ModelSerializer):
         """Create new user with encrypted password and return it"""
         return get_user_model().objects.create_user(**validated_data)
 
+    def update(self, instance, validated_data):
+        """Update user and set password correctly and return it"""
+        password = validated_data.pop('password', None)
+        user = super().update(instance, validated_data)
+
+        if password:
+            user.set_password(password)
+            user.save()
+
+        return user
+
     def validate(self, data):
         """Check that password contains at least 1 uppercase and 1 digit"""
-        if not re.findall('[A-Z]', data['password']):
+        print(data)
+        if 'password' in data and not re.findall('[A-Z]', data['password']):
             raise serializers.ValidationError('Password must containt at '
                                               'least 1 uppercase')
 
-        if not re.findall('[0-9]', data['password']):
+        if 'password' in data and not re.findall('[0-9]', data['password']):
             raise serializers.ValidationError('Password must contain at least '
                                               '1 digit')
 
