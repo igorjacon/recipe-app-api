@@ -7,7 +7,7 @@ from rest_framework import status
 
 CREATE_USER_URL = reverse('user:create')
 TOKEN_URL = reverse('user:token')
-PROFILE_URL = reverse('user:profile')
+ACCOUNT_URL = reverse('user:account')
 
 
 def create_user(**params):
@@ -103,7 +103,7 @@ class PublicUserApiTest(TestCase):
 
     def test_retrieve_user_unauthorized(self):
         """Test that authentication is required for users"""
-        res = self.client.get(PROFILE_URL)
+        res = self.client.get(ACCOUNT_URL)
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -122,7 +122,7 @@ class PrivateUserApiTests(TestCase):
 
     def test_retrieve_authenticated_user(self):
         """Test the GET endpoint on the user profile url"""
-        res = self.client.get(PROFILE_URL)
+        res = self.client.get(ACCOUNT_URL)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, {
@@ -132,14 +132,14 @@ class PrivateUserApiTests(TestCase):
 
     def test_post_profile_not_allowed(self):
         """Test that the post method is not allowed on the profile url"""
-        res = self.client.post(PROFILE_URL, {})
+        res = self.client.post(ACCOUNT_URL, {})
 
         self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_update_user_profile(self):
         """Test that we can update an authenticated user"""
         payload = {'name': 'New Name', 'password': 'newPass123'}
-        res = self.client.patch(PROFILE_URL, payload)
+        res = self.client.patch(ACCOUNT_URL, payload)
 
         self.user.refresh_from_db()
 
