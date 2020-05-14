@@ -35,7 +35,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         """Check that password contains at least 1 uppercase and 1 digit"""
-        print(data)
         if 'password' in data and not re.findall('[A-Z]', data['password']):
             raise serializers.ValidationError('Password must containt at '
                                               'least 1 uppercase')
