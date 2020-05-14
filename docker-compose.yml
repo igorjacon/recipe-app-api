@@ -26,3 +26,19 @@ services:
       - POSTGRES_DB=recipe_app
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password01
+
+  db_admin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=igorjacon90@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=password01
+      - PGADMIN_LISTEN_PORT=80
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    links:
+      - "db:pgsql-server"
+
+volumes:
+  pgadmin-data:
