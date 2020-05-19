@@ -6,21 +6,21 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from core.models import Recipe
-from recipe import RecipeSerializer
+from recipe.serializers import RecipeSerializer
 
 RECIPE_URL = reverse('recipe:recipe-list')
 
 
 def sample_recipe(user, **params):
     """Helper function to create and return a sample recipe"""
-    defauls = {
+    defaults = {
         'title': 'Sample Recipe',
         'time_minutes': 10,
         'price': 5.00
     }
-    defaults.update(**params)
+    defaults.update(params)
 
-    return Recipe.objects.create(user, **defaults)
+    return Recipe.objects.create(user=user, **defaults)
 
 
 def sample_user(email='test@gmail.com', password='TestPass123'):
@@ -38,10 +38,10 @@ class PublicRecipesApiTests(TestCase):
         """Test public access to the recipe list api endpoint"""
         res = self.client.get(RECIPE_URL)
 
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
-class PrivateRecipeApiTests(self):
+class PrivateRecipeApiTests(TestCase):
     """Test the private recipe api endpoint"""
 
     def setUp(self):
@@ -51,12 +51,12 @@ class PrivateRecipeApiTests(self):
 
     def test_retrieving_recipe_list(self):
         """Test retrieving the recipe list for authenticated user"""
-        sample_recipe(self.user)
-        sample_recipe(self.user)
+        sample_recipe(user=self.user)
+        sample_recipe(user=self.user, title='New Recipe')
 
         res = self.client.get(RECIPE_URL)
 
-        recipes = Recipe.objects.all()
+        recipes = Recipe.objects.all().order_by('-id')
         serializer = RecipeSerializer(recipes, many=True)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
